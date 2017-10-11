@@ -46,7 +46,8 @@ BEGIN {
                        if (p == pod) {
                            pod_begin_time=substr(pods_scheduled[p],12,8)
                            pod_end_time=substr(pods_started[p],12,8)
-                           print "Pod-"pod, pod_begin_time, pod_end_time, getSeconds(pod_end_time) - getSeconds(pod_begin_time)
+                           pod_time=getSeconds(pod_end_time) - getSeconds(pod_begin_time)
+                           print "Pod-"pod, pod_begin_time, pod_end_time, pod_time
                        }
                     }
             }
@@ -61,7 +62,8 @@ BEGIN {
     if ( $0 ~ MARKER_PVC_BOUND_END) {
             pvc_end_time=$3
             print "\n"
-            print "PVC",  pvc_begin_time, pvc_end_time, getSeconds(pvc_end_time) - getSeconds(pvc_begin_time)
+            pvc_time=getSeconds(pvc_end_time) - getSeconds(pvc_begin_time)
+            print "PVC",  pvc_begin_time, pvc_end_time, pvc_time
     }
 
     if ( $0 ~ MARKER_PV) {
@@ -75,7 +77,10 @@ BEGIN {
     }
     if ( $0 ~ MARKER_ATTACH_END) {
             attach_end_time=$3
-            print "Attach",  attach_begin_time, attach_end_time, getSeconds(attach_end_time) - getSeconds(attach_begin_time)
+            attach_time=getSeconds(attach_end_time) - getSeconds(attach_begin_time)
+            total_time=getSeconds(pod_end_time) - getSeconds(pvc_begin_time) - getSeconds("04:00:00")
+            print "Attach",  attach_begin_time, attach_end_time, attach_time
+            print "Total", total_time
+            print "Summary", total_time, pod_time, attach_time, pvc_time
     }
-
 }
