@@ -12,14 +12,15 @@ BEGIN {
     MARKER_PVC_BOUND_END="claim \"../claim-che-workspace\" entered phase \"Bound\""
     
     MARKER_PV="volume [^ ]* bound to claim \"../che-data-volume\""
-    
+    PV="foobar"     
+
     MARKER_POD_SCHEDULED="type: 'Normal' reason: 'SuccessfulCreate' Created pod: che-1"
     
-    MARKER_ATTACH_START_PREFIX="attacherDetacher.AttachVolume started for volume "
-    MARKER_ATTACH_END_PREFIX="AttachVolume.Attach succeeded for volume "
+    MARKER_ATTACH_START="attacherDetacher.AttachVolume started for volume "
+    MARKER_ATTACH_END="AttachVolume.Attach succeeded for volume "
 
-    MARKER_ATTACH_START="attacherDetacher.AttachVolume started for volume PV"
-    MARKER_ATTACH_END="AttachVolume.Attach succeeded for volume PV"
+    MARKER_ATTACH_START="attacherDetacher.AttachVolume started for volume"
+    MARKER_ATTACH_END="AttachVolume.Attach succeeded for volume"
 
     MARKER_SCHEDULED="type: 'Normal' reason: 'Scheduled' Successfully assigned che-1"
     
@@ -68,14 +69,12 @@ BEGIN {
 
     if ( $0 ~ MARKER_PV) {
            PV=$(NF-4)
-           MARKER_ATTACH_START=MARKER_ATTACH_START_PREFIX  PV
-           MARKER_ATTACH_END=MARKER_ATTACH_END_PREFIX  PV
     }
 
-    if ( $0 ~ MARKER_ATTACH_START) {
+    if ( $0 ~ MARKER_ATTACH_START && $0 ~ PV) {
             attach_begin_time=$3
     }
-    if ( $0 ~ MARKER_ATTACH_END) {
+    if ( $0 ~ MARKER_ATTACH_END && $0 ~ PV) {
             attach_end_time=$3
             attach_time=getSeconds(attach_end_time) - getSeconds(attach_begin_time)
             total_time=getSeconds(pod_end_time) - getSeconds(pvc_begin_time) - getSeconds("04:00:00")
